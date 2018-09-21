@@ -1,0 +1,2 @@
+ext:
+- extensions.amp_dependency_injector.AmpDependencyInjectorExtension
