@@ -1,2 +1,5 @@
+localization:
+  default_locale: en
+
 ext:
 - extensions.amp_dependency_injector.AmpDependencyInjectorExtension
