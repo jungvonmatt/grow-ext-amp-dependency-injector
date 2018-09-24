@@ -17,3 +17,10 @@ After matching the found dependencies against a list of valid dependencies they 
 ext:
 - extensions.amp_dependency_injector.AmpDependencyInjectorExtension
 ```
+
+### Configuration
+By default all pages that have a HTML tag of either `<html amp` or `<html ⚡` are considered AMP pages and get their dependencies injected. To opt out of this behaviour for a specific page set the following inside the document's frontmatter:
+
+```yaml
+$$injectAmpDependencies: False
+```

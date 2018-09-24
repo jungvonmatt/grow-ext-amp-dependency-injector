@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import re
-from io import BytesIO
 
 from grow import extensions
 from grow.documents import document
@@ -66,7 +65,9 @@ class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
 
     def trigger(self, previous_result, doc, raw_content, *_args, **_kwargs):
         content = previous_result if previous_result else raw_content
-        # TODO: Check if the page opted-out of injection
+        # Check if page opted out of injection
+        if not doc.fields.get('$$injectAmpDependencies', True):
+            return content
 
         # Quick check if the page is really a AMP page
         if not any(marker in content for marker in ['<html amp', '<html ⚡']):
@@ -80,7 +81,8 @@ class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
 
     def find_dependencies(self, content):
         """Checks the generated output for possible AMP dependencies."""
-        # TODO: Extract code snippets before searching for deps
+        # TODO: Remove code snippets from content before searching for deps
+
         dependencies = []
 
         # Finds all <amp-*> tags that may introduce a dependency to a component
@@ -119,7 +121,7 @@ class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
         return dependencies
 
     def inject_dependencies(self, dependencies, content):
-        # TODO: Parse document via etree.iterparse
+        # TODO: Parse document via etree.iterparse as only head is needed
         content = etree.HTML(content)
         head = content.find('head')
         for dependency in dependencies:
