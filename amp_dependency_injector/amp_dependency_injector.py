@@ -137,7 +137,7 @@ class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
             script = head.makeelement('script', attributes)
             head.append(script)
 
-        return etree.tostring(content, pretty_print=False, method='html')
+        return etree.tostring(content.getroottree(), pretty_print=False, method='html')
 
 
 class AmpDependencyInjectorExtension(extensions.BaseExtension):
