@@ -64,15 +64,21 @@ VALID_DEPENDENCIES = {
 class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
     """Handle the post-render hook."""
 
-    def trigger(self, previous_result, doc, raw_content, *_args, **_kwargs):
+    def should_trigger(self, previous_result, doc, raw_content, *_args, **_kwargs):
+        """Should the hook trigger with current document?"""
         content = previous_result if previous_result else raw_content
-        # Check if page opted out of injection
+
         if not doc.fields.get('$$injectAmpDependencies', True):
-            return content
+            return False
 
         # Quick check if the page is really a AMP page
         if not any(marker in content for marker in ['<html amp', '<html ⚡']):
-            return content
+            return False
+
+        return True
+
+    def trigger(self, previous_result, doc, raw_content, *_args, **_kwargs):
+        content = previous_result if previous_result else raw_content
 
         dependencies = self.find_dependencies(content)
         dependencies = self.verify_dependencies(dependencies)
