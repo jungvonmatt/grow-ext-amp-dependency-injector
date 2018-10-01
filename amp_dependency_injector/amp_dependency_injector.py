@@ -121,11 +121,15 @@ class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
         return dependencies
 
     def verify_dependencies(self, dependencies):
-        """Verifies that the found dependencies are valid components."""
-        dependencies = list(
-            filter(lambda dependency: dependency in VALID_DEPENDENCIES,
-                   dependencies))
-        return dependencies
+        """Verifies that the found dependencies are valid components
+        and filters out duplicates."""
+        valid_dependencies = {}
+        for dependency in dependencies:
+            if dependency not in VALID_DEPENDENCIES: continue
+            if dependency in valid_dependencies: continue
+
+            valid_dependencies[dependency] = True
+        return valid_dependencies.keys()
 
     def inject_dependencies(self, dependencies, content):
         # TODO: Parse document via etree.iterparse as only head is needed
