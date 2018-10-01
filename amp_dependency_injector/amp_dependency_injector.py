@@ -126,7 +126,9 @@ class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
         seen_dependencies = {}
         valid_dependencies = []
         for dependency in dependencies:
-            if dependency not in VALID_DEPENDENCIES: continue
+            if dependency not in VALID_DEPENDENCIES:
+                self.pod.logger.warning('Document uses unknown AMP dependency: {}'.format(dependency))
+                continue
             if dependency in seen_dependencies: continue
 
             seen_dependencies[dependency] = True
