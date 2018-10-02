@@ -2,7 +2,7 @@
 import re
 
 from grow import extensions
-from grow.documents import document
+from grow.documents import document, static_document
 from grow.extensions import hooks
 
 try:
@@ -68,6 +68,15 @@ class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
         """Should the hook trigger with current document?"""
         content = previous_result if previous_result else raw_content
 
+        # Do not run for empty documents
+        if content is None:
+          return False
+
+        # Check that it's not a StaticDocument
+        if isinstance(doc, static_document.StaticDocument):
+            return False
+
+        # Check if the document opted out of injection
         if not doc.fields.get('$$injectAmpDependencies', True):
             return False
 
