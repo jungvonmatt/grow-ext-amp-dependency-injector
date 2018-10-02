@@ -20,6 +20,7 @@ except ImportError:
 VALID_DEPENDENCIES = {
     # 'amp-layout': True,
     'amp-access': True,
+    'amp-animation': True,
     'amp-access-laterpay': True,
     'amp-accordion': True,
     'amp-ad': True,
