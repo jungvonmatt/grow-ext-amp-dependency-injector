@@ -14,3 +14,7 @@ $$injectAmpDependencies: True
     <div class="gallery-slide">2</div>
     <div class="gallery-slide">3</div>
 </amp-carousel>
+
+<div>Current color: <span [text]="color">-</span></div>
+<button on="tap:AMP.setState({color: 'red'})">Set color: red</button>
+<button on="tap:AMP.setState({color: 'green'})">Set color: green</button>

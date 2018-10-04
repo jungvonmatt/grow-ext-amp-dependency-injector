@@ -5,16 +5,6 @@ from grow import extensions
 from grow.documents import document, static_document
 from grow.extensions import hooks
 
-try:
-    from lxml import etree
-    print("NOTICE: AMP dependency injector running with lxml.etree")
-except ImportError:
-    try:
-        import xml.etree.cElementTree as etree
-        print("NOTICE: AMP dependency injector running with cElementTree")
-    except ImportError:
-        print("WARNING: No good ElementTree implementation available")
-
 # See: https://www.ampproject.org/docs/reference/components
 # TODO: Add remaining Media dependencies
 VALID_DEPENDENCIES = {
@@ -85,6 +75,10 @@ class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
         if not any(marker in content for marker in ['<html amp', '<html ⚡']):
             return False
 
+        # And has a head element
+        if '</head>' not in content:
+            return False
+
         return True
 
     def trigger(self, previous_result, doc, raw_content, *_args, **_kwargs):
@@ -117,7 +111,7 @@ class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
         # https://www.ampproject.org/docs/reference/components/amp-bind#element-specific-attributes
         # TODO: Add remainig bindable values
         AMP_BIND_MARKERS_REGEX = r"(<amp-state|<amp-bind-macro|\s\[(text|class|hidden|width|height|src|title|alt|srcset|open|selected|controls|loop|poster|preload|disabled|href|type|value)\]=)"
-        if re.match(AMP_BIND_MARKERS_REGEX, content):
+        if re.search(AMP_BIND_MARKERS_REGEX, content):
             dependencies.append('amp-bind')
 
         # Checks if document depends on <amp-mustache>
@@ -146,25 +140,20 @@ class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
         return valid_dependencies
 
     def inject_dependencies(self, dependencies, content):
-        # TODO: Parse document via etree.iterparse as only head is needed
-        content = etree.HTML(content)
-        head = content.find('head')
+        script_tags = []
         for dependency in dependencies:
-            # TODO: Handle different versions by configuration
-            attributes = {
-                'async': '',
-                'src': 'https://cdn.ampproject.org/v0/{}-0.1.js'.format(dependency),
-            }
+            # TODO: Handle different versions, URL and type within VALID_DEPENDENCIES
+            src = 'https://cdn.ampproject.org/v0/{}-0.1.js'.format(dependency)
+            type = 'element' if dependency is not 'amp-mustache' else 'template'
 
-            if dependency is not 'amp-mustache':
-                attributes['custom-element'] = dependency
-            else:
-                attributes['custom-template'] = dependency
+            tag = '<script custom-{type}="{dependency}" src="{src}" async></script>'.format(type=type, dependency=dependency, src=src)
+            script_tags.append(tag)
 
-            script = head.makeelement('script', attributes)
-            head.append(script)
+        # Add tags to end of <head>
+        script_tags.append('</head>')
+        content = content.replace('</head>', ''.join(script_tags))
 
-        return etree.tostring(content.getroottree(), pretty_print=False, method='html')
+        return content
 
 
 class AmpDependencyInjectorExtension(extensions.BaseExtension):

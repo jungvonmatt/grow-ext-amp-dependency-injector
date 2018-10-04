@@ -10,7 +10,5 @@ setup(
     packages=[
         'amp_dependency_injector',
     ],
-    install_requires=[
-        'lxml==4.2.5'
-    ],
+    install_requires=[],
 )
