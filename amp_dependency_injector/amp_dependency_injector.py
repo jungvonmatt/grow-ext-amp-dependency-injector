@@ -8,7 +8,6 @@ from grow.extensions import hooks
 # See: https://www.ampproject.org/docs/reference/components
 # TODO: Add remaining Media dependencies
 VALID_DEPENDENCIES = {
-    # 'amp-layout': True,
     'amp-access': True,
     'amp-animation': True,
     'amp-access-laterpay': True,
@@ -50,6 +49,12 @@ VALID_DEPENDENCIES = {
     'amp-user-notification': True,
     'amp-web-push': True,
 }
+
+BUILT_INS = [
+    'amp-layout',
+    'amp-img',
+    'amp-pixel'
+]
 
 
 class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
@@ -130,10 +135,11 @@ class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
         seen_dependencies = {}
         valid_dependencies = []
         for dependency in dependencies:
+            if dependency in seen_dependencies: continue
+            if dependency in BUILT_INS: continue
             if dependency not in VALID_DEPENDENCIES:
                 self.pod.logger.warning('Document uses unknown AMP dependency: {}'.format(dependency))
                 continue
-            if dependency in seen_dependencies: continue
 
             seen_dependencies[dependency] = True
             valid_dependencies.append(dependency)
