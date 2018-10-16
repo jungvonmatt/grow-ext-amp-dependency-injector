@@ -47,6 +47,7 @@ VALID_DEPENDENCIES = {
     'amp-sidebar': True,
     'amp-sticky-ad': True,
     'amp-user-notification': True,
+    'amp-youtube': True,
     'amp-web-push': True,
 }
 
