@@ -46,12 +46,13 @@ VALID_DEPENDENCIES = {
     'amp-selector': True,
     'amp-sidebar': True,
     'amp-social-share': True,
+    'amp-state': True,
     'amp-sticky-ad': True,
     'amp-user-notification': True,
     'amp-video': True,
     'amp-vimeo': True,
-    'amp-youtube': True,
     'amp-web-push': True,
+    'amp-youtube': True,
 }
 
 BUILT_INS = [
