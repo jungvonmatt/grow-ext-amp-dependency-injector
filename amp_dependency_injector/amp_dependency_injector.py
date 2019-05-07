@@ -9,13 +9,15 @@ from grow.extensions import hooks
 # TODO: Add remaining Media dependencies
 VALID_DEPENDENCIES = {
     'amp-access': True,
-    'amp-animation': True,
     'amp-access-laterpay': True,
     'amp-accordion': True,
     'amp-ad': True,
     'amp-ad-exit': True,
     'amp-analytics': True,
+    'amp-anim': True,
+    'amp-animation': True,
     'amp-app-banner': True,
+    'amp-audio': True,
     'amp-auto-ads': True,
     'amp-bind': True,
     'amp-byside-content': True,
@@ -24,8 +26,11 @@ VALID_DEPENDENCIES = {
     'amp-consent': True,
     'amp-date-picker': True,
     'amp-experiment': True,
-    'amp-form': True,
+    'amp-facebook': True,
+    'amp-facebook-like': True,
+    'amp-fit-text': True,
     'amp-font': True,
+    'amp-form': True,
     'amp-fx-collection': True,
     'amp-fx-flying-carpet': True,
     'amp-geo': True,
@@ -45,8 +50,9 @@ VALID_DEPENDENCIES = {
     'amp-position-observer': True,
     'amp-selector': True,
     'amp-sidebar': True,
-    'amp-social-share': True,
     'amp-sticky-ad': True,
+    'amp-story': True,
+    'amp-social-share': True,
     'amp-user-notification': True,
     'amp-video': True,
     'amp-vimeo': True,
@@ -60,6 +66,13 @@ BUILT_INS = [
     'amp-pixel'
 ]
 
+FALSE_POSITIVES = [
+    'amp-state',
+    'amp-story-page',
+    'amp-story-grid-layer',
+    'amp-story-bookend',
+]
+
 
 class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
     """Handle the post-render hook."""
@@ -67,6 +80,7 @@ class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
     def should_trigger(self, previous_result, doc, raw_content, *_args, **_kwargs):
         """Should the hook trigger with current document?"""
         content = previous_result if previous_result else raw_content
+        content = content.encode('utf-8')
 
         # Do not run for empty documents
         if content is None:
@@ -93,47 +107,61 @@ class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
     def trigger(self, previous_result, doc, raw_content, *_args, **_kwargs):
         content = previous_result if previous_result else raw_content
 
-        dependencies = self.find_dependencies(content)
-        dependencies = self.verify_dependencies(dependencies)
+        doc_path = document.Document.clean_localized_path(doc.pod_path, doc.locale)
+        dependencies = self.extension._dependencyCache.get(doc_path)
+        if not dependencies or self.extension.pod.env.dev:
+          dependencies = self.find_dependencies(content=content)
+          dependencies = self.verify_dependencies(dependencies, doc=doc)
+          # Dependencies will not change so cache them
+          self.extension._dependencyCache.add(doc_path, dependencies)
+
         content = self.inject_dependencies(dependencies, content)
 
         return content
 
     def find_dependencies(self, content):
         """Checks the generated output for possible AMP dependencies."""
-        # TODO: Remove code snippets from content before searching for deps
+        # Remove code snippets from content before searching for deps
+        PRE_CODE_REGEX = r"<pre[^>]*>.+</pre>|<code[^>]*>.+</code>"
+        stripped_content = content
+        for pre_code in re.findall(PRE_CODE_REGEX, content):
+          stripped_content = stripped_content.replace(pre_code, '')
 
         dependencies = []
 
         # Finds all <amp-*> tags that may introduce a dependency to a component
         ELEMENT_REGEX = r"<(amp-\S*?)(>|\s)"
-        for element in re.findall(ELEMENT_REGEX, content):
+        for element in re.findall(ELEMENT_REGEX, stripped_content):
             # The first capturing group will be the component name
             component_name = element[0]
             dependencies.append(component_name)
 
         # Checks if document depends on <amp-form>
-        if '<form' in content:
+        if '<form' in stripped_content:
             dependencies.append('amp-form')
 
         # Checks if document depends on <amp-bind>, also see:
         # https://www.ampproject.org/docs/reference/components/amp-bind#element-specific-attributes
         # TODO: Add remainig bindable values
         AMP_BIND_MARKERS_REGEX = r"(<amp-state|<amp-bind-macro|\s\[(text|class|hidden|width|height|src|title|alt|srcset|open|selected|controls|loop|poster|preload|disabled|href|type|value)\]=)"
-        if re.search(AMP_BIND_MARKERS_REGEX, content):
+        if re.search(AMP_BIND_MARKERS_REGEX, stripped_content):
             dependencies.append('amp-bind')
 
+        # Checks if document depends on <amp-access>
+        if ' amp-access="' in stripped_content:
+            dependencies.append('amp-access')
+
         # Checks if document depends on <amp-mustache>
-        if '<template type="amp-mustache"' in content:
+        if '<template type="amp-mustache"' in stripped_content:
             dependencies.append('amp-mustache')
 
         # Checks if document uses <amp-fx-collection>
-        if 'amp-fx="' in content:
+        if ' amp-fx="' in stripped_content:
             dependencies.append('amp-fx-collection')
 
         return dependencies
 
-    def verify_dependencies(self, dependencies):
+    def verify_dependencies(self, dependencies, doc):
         """Verifies that the found dependencies are valid components
         and filters out duplicates."""
         seen_dependencies = {}
@@ -141,8 +169,9 @@ class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
         for dependency in dependencies:
             if dependency in seen_dependencies: continue
             if dependency in BUILT_INS: continue
+            if dependency in FALSE_POSITIVES: continue
             if dependency not in VALID_DEPENDENCIES:
-                self.pod.logger.warning('Document uses unknown AMP dependency: {}'.format(dependency))
+                self.pod.logger.warning('{} uses unknown AMP dependency: {}'.format(doc, dependency))
                 continue
 
             seen_dependencies[dependency] = True
@@ -168,6 +197,11 @@ class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
 
 class AmpDependencyInjectorExtension(extensions.BaseExtension):
     """AMP Dependency Injector Extension."""
+
+    def __init__(self, pod, config):
+        super(AmpDependencyInjectorExtension, self).__init__(pod, config)
+        # Initialize a cache for the found dependencies
+        self._dependencyCache = pod.podcache.get_object_cache('ampDeps')
 
     @property
     def available_hooks(self):
