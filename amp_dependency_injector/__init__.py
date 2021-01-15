@@ -1,1 +1,1 @@
-from amp_dependency_injector import *
+from . amp_dependency_injector import *
