@@ -95,11 +95,11 @@ class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
 
         # Quick check if the page is really a AMP page but convert to uft-8 before
         content = content.encode('utf-8')
-        if not any(marker in content for marker in ['<html amp', '<html ⚡']):
+        if not any(marker in content for marker in [b'<html amp', b'<html \u26A1']):
             return False
 
         # And has a head element
-        if '</head>' not in content:
+        if b'</head>' not in content:
             return False
 
         return True
@@ -183,7 +183,7 @@ class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
         for dependency in dependencies:
             # TODO: Handle different versions, URL and type within VALID_DEPENDENCIES
             src = 'https://cdn.ampproject.org/v0/{}-0.1.js'.format(dependency)
-            type = 'element' if dependency is not 'amp-mustache' else 'template'
+            type = 'element' if dependency != 'amp-mustache' else 'template'
 
             tag = '<script custom-{type}="{dependency}" src="{src}" async></script>'.format(type=type, dependency=dependency, src=src)
             script_tags.append(tag)
