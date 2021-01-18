@@ -183,7 +183,7 @@ class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
         for dependency in dependencies:
             # TODO: Handle different versions, URL and type within VALID_DEPENDENCIES
             src = 'https://cdn.ampproject.org/v0/{}-0.1.js'.format(dependency)
-            type = 'element' if dependency is not 'amp-mustache' else 'template'
+            type = 'element' if dependency != 'amp-mustache' else 'template'
 
             tag = '<script custom-{type}="{dependency}" src="{src}" async></script>'.format(type=type, dependency=dependency, src=src)
             script_tags.append(tag)
