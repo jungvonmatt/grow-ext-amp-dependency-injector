@@ -95,7 +95,7 @@ class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
 
         # Quick check if the page is really a AMP page but convert to uft-8 before
         content = content.encode('utf-8')
-        if not any(marker in content for marker in [b'<html amp', b'<html ⚡']):
+        if not any(marker in content for marker in [b'<html amp', b'<html \u26A1']):
             return False
 
         # And has a head element
