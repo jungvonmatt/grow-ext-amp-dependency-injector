@@ -52,6 +52,7 @@ VALID_DEPENDENCIES = {
     'amp-sidebar': True,
     'amp-sticky-ad': True,
     'amp-story': True,
+    'amp-story-player': True,
     'amp-social-share': True,
     'amp-user-notification': True,
     'amp-video': True,
