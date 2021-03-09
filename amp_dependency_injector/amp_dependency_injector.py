@@ -8,11 +8,11 @@ from grow.extensions import hooks
 # See: https://www.ampproject.org/docs/reference/components
 # TODO: Add remaining Media dependencies
 VALID_DEPENDENCIES = {
-    'amp-access-laterpay': True,
     'amp-access': True,
+    'amp-access-laterpay': True,
     'amp-accordion': True,
-    'amp-ad-exit': True,
     'amp-ad': True,
+    'amp-ad-exit': True,
     'amp-analytics': True,
     'amp-anim': True,
     'amp-animation': True,
@@ -26,8 +26,8 @@ VALID_DEPENDENCIES = {
     'amp-consent': True,
     'amp-date-picker': True,
     'amp-experiment': True,
-    'amp-facebook-like': True,
     'amp-facebook': True,
+    'amp-facebook-like': True,
     'amp-fit-text': True,
     'amp-font': True,
     'amp-form': True,
@@ -39,8 +39,8 @@ VALID_DEPENDENCIES = {
     'amp-iframe': True,
     'amp-image-lightbox': True,
     'amp-install-serviceworker': True,
-    'amp-lightbox-gallery': True,
     'amp-lightbox': True,
+    'amp-lightbox-gallery': True,
     'amp-list': True,
     'amp-live-list': True,
     'amp-mustache': True,
@@ -53,8 +53,8 @@ VALID_DEPENDENCIES = {
     'amp-sidebar': True,
     'amp-social-share': True,
     'amp-sticky-ad': True,
-    'amp-story-player': True,
     'amp-story': True,
+    'amp-story-player': True,
     'amp-user-notification': True,
     'amp-video': True,
     'amp-vimeo': True,
@@ -63,16 +63,16 @@ VALID_DEPENDENCIES = {
 }
 
 BUILT_INS = [
-    'amp-layout',
     'amp-img',
+    'amp-layout',
     'amp-pixel'
 ]
 
 FALSE_POSITIVES = [
     'amp-state',
-    'amp-story-page',
-    'amp-story-grid-layer',
     'amp-story-bookend',
+    'amp-story-grid-layer',
+    'amp-story-page',
 ]
 
 
