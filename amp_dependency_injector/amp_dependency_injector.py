@@ -48,12 +48,13 @@ VALID_DEPENDENCIES = {
     'amp-orientation-observer': True,
     'amp-pixel': True,
     'amp-position-observer': True,
+    'amp-script': True,
     'amp-selector': True,
     'amp-sidebar': True,
+    'amp-social-share': True,
     'amp-sticky-ad': True,
     'amp-story': True,
     'amp-story-player': True,
-    'amp-social-share': True,
     'amp-user-notification': True,
     'amp-video': True,
     'amp-vimeo': True,
@@ -62,16 +63,16 @@ VALID_DEPENDENCIES = {
 }
 
 BUILT_INS = [
-    'amp-layout',
     'amp-img',
+    'amp-layout',
     'amp-pixel'
 ]
 
 FALSE_POSITIVES = [
     'amp-state',
-    'amp-story-page',
-    'amp-story-grid-layer',
     'amp-story-bookend',
+    'amp-story-grid-layer',
+    'amp-story-page',
 ]
 
 
