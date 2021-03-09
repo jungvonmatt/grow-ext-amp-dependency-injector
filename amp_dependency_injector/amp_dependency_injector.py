@@ -48,6 +48,7 @@ VALID_DEPENDENCIES = {
     'amp-orientation-observer': True,
     'amp-pixel': True,
     'amp-position-observer': True,
+    'amp-script': True,
     'amp-selector': True,
     'amp-sidebar': True,
     'amp-social-share': True,
