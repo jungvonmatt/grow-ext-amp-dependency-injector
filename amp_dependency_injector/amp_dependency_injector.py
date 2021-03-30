@@ -54,6 +54,7 @@ VALID_DEPENDENCIES = {
     'amp-social-share': True,
     'amp-sticky-ad': True,
     'amp-story': True,
+    'amp-story-interactive': True,
     'amp-story-player': True,
     'amp-user-notification': True,
     'amp-video': True,
@@ -72,6 +73,8 @@ FALSE_POSITIVES = [
     'amp-state',
     'amp-story-bookend',
     'amp-story-grid-layer',
+    'amp-story-interactive-quiz',
+    'amp-story-interactive-results',
     'amp-story-page',
 ]
 
@@ -160,6 +163,10 @@ class AmpDependencyInjectorPostRenderHook(hooks.PostRenderHook):
         # Checks if document uses <amp-fx-collection>
         if ' amp-fx="' in stripped_content:
             dependencies.append('amp-fx-collection')
+
+        # Checks if document uses <amp-story-interactive>
+        if '<amp-story-interactive-' in stripped_content:
+            dependencies.append('amp-story-interactive')
 
         return dependencies
 
